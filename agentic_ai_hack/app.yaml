@@ -1,0 +1,6 @@
+runtime: python310
+entrypoint: gunicorn -b :$PORT agenticai_hack.wsgi
+
+handlers:
+  - url: /.*
+    script: auto

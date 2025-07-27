@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bangalore Traffic Analysis</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #1a73e8;
+        }
+        .dashboard {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .traffic-table-container {
+            width: 100%;
+            max-width: 600px;
+        }
+        .map-container {
+            width: 100%;
+            max-width: 600px;
+            height: 500px;
+        }
+        #traffic-map {
+            height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .traffic-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .traffic-table th, .traffic-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .traffic-table th {
+            background-color: #f2f2f2;
+        }
+        .success-row {
+            background-color: #e8f5e9;
+        }
+        .error-row {
+            background-color: #ffebee;
+        }
+        .delay {
+            font-weight: bold;
+        }
+        .error-msg {
+            color: #d32f2f;
+        }
+        .update-info {
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .error-list {
+            color: #d32f2f;
+            margin-bottom: 20px;
+        }
+        .legend {
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            line-height: 1.5;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+        @media (min-width: 1200px) {
+            .traffic-table-container,
+            .map-container {
+                width: 48%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Bangalore Traffic Analysis</h1>
+    
+    <div class="update-info">
+        Last updated: {{ last_updated }} | Successful routes: {{ success_count }}/{{ traffic_data|length }}
+    </div>
+    
+    {% if errors %}
+    <div class="error-list">
+        <h3>Errors Encountered:</h3>
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <div class="dashboard">
+        <div class="traffic-table-container">
+            <table class="traffic-table">
+                <thead>
+                    <tr>
+                        <th>Route</th>
+                        <th>Distance</th>
+                        <th>Normal Time</th>
+                        <th>Current Time</th>
+                        <th>Delay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for route in traffic_data %}
+                    <tr class="{% if route.status == 'success' %}success-row{% else %}error-row{% endif %}">
+                        <td>{{ route.route }}</td>
+                        <td>{% if route.status == 'success' %}{{ route.distance }}{% else %}-{% endif %}</td>
+                        <td>{% if route.status == 'success' %}{{ route.normal_time }}{% else %}-{% endif %}</td>
+                        <td>{% if route.status == 'success' %}{{ route.traffic_time }}{% else %}-{% endif %}</td>
+                        <td class="delay">
+                            {% if route.status == 'success' %}
+                                {{ route.delay_minutes }} min {{ route.delay_seconds }} sec
+                            {% else %}
+                                <span class="error-msg">Error: {{ route.error }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="map-container">
+            <div id="traffic-map"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet Polyline Decorator for direction arrows -->
+    <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
+    
+    <script>
+        // Initialize the map centered on Bangalore
+        const map = L.map('traffic-map').setView([12.9716, 77.5946], 12);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Add legend
+        const legend = L.control({position: 'bottomright'});
+        legend.onAdd = function(map) {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <h4>Traffic Delay</h4>
+                <i style="background: #4CAF50"></i> <span>Low (&lt; 5 min)</span><br>
+                <i style="background: #FFC107"></i> <span>Medium (5-10 min)</span><br>
+                <i style="background: #F44336"></i> <span>High (&gt; 10 min)</span><br>
+                <i style="background: #9E9E9E; border: 1px dashed #666"></i> <span>Error</span>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+        
+
+        // Function to get color based on delay
+        function getDelayColor(delay) {
+            if (delay === null) return '#9E9E9E'; // Gray for errors
+            if (delay < 5) return '#4CAF50';      // Green
+            if (delay < 10) return '#FFC107';     // Yellow
+            return '#F44336';                     // Red
+        }
+        
+        // Known locations in Bangalore with coordinates
+        const bangaloreLocations = {
+            "Bangalore City Railway Station": [12.9774, 77.5661],
+            "Vidhana Soudha": [12.9794, 77.5907],
+            "Cubbon Park": [12.9768, 77.5928],
+            "Electronic City Metro Station": [12.8456, 77.6633],
+            "Silk Board Junction": [12.9172, 77.6231],
+            "Marathahalli Bridge": [12.9592, 77.6974],
+            "KR Puram Railway Station": [13.0075, 77.7008],
+            "MG Road Metro Station": [12.9757, 77.6059],
+            "Koramangala Water Tank": [12.9352, 77.6245]
+        };
+        
+        // Function to find coordinates for a location
+        function findCoordinates(address) {
+            for (const [location, coords] of Object.entries(bangaloreLocations)) {
+                if (address.includes(location)) {
+                    return coords;
+                }
+            }
+            return [12.9716, 77.5946]; // Default to Bangalore center
+        }
+        
+
+
+        const routeData = [
+            {% for route in traffic_data %}
+            {
+                name: "{{ route.route|escapejs }}",
+                start: "{{ route.start|escapejs }}",
+                end: "{{ route.end|escapejs }}",
+                delay: {% if route.delay_minutes %}{{ route.delay_minutes }}{% else %}null{% endif %},
+                error: {% if route.error %}"{{ route.error|escapejs }}"{% else %}null{% endif %}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        // Process each route
+        routeData.forEach(route => {
+            const startCoords = findCoordinates(route.start);
+            const endCoords = findCoordinates(route.end);
+            
+            // Draw the route line
+            const line = L.polyline([startCoords, endCoords], {
+                color: getDelayColor(route.delay),
+                weight: 6,
+                opacity: 0.7,
+                dashArray: route.delay === null ? '5,5' : null
+            }).addTo(map);
+            
+            // Add direction arrows (except for error routes)
+            if (route.delay !== null) {
+                L.polylineDecorator(line, {
+                    patterns: [
+                        {
+                            offset: '50%',
+                            repeat: '100px',
+                            symbol: L.Symbol.arrowHead({
+                                pixelSize: 10,
+                                pathOptions: {
+                                    color: getDelayColor(route.delay),
+                                    fillOpacity: 0.7,
+                                    weight: 0
+                                }
+                            })
+                        }
+                    ]
+                }).addTo(map);
+            }
+            
+            // Add markers with popups
+            L.marker(startCoords).addTo(map)
+                .bindPopup(`<b>Start:</b> ${route.start}`);
+            
+            L.marker(endCoords).addTo(map)
+                .bindPopup(`<b>End:</b> ${route.end}<br>
+                          ${route.delay !== null ? 
+                           `<b>Delay:</b> ${route.delay} minutes` : 
+                           `<b>Error:</b> ${route.error || 'Unknown error'}`}`);
+        });
+        
+        // Fit map to show all features
+        const bounds = L.latLngBounds(
+            Object.values(bangaloreLocations).concat([[12.9716, 77.5946]])
+        );
+        map.fitBounds(bounds.pad(0.2));
+    </script>
+</body>
+</html>

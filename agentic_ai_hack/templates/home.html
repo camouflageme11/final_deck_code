@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>City Data Management</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom Styles -->
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        padding-top: 70px;
+        transition: background-color 0.4s, color 0.4s;
+      }
+
+      /* Colorful Agentic Navbar */
+      .navbar {
+        background: linear-gradient(90deg, #f6f7f9, #e3f2fd, #fce4ec, #e8f5e9);
+        border-bottom: 2px solid #ddd;
+      }
+
+      .navbar-brand {
+        font-weight: bold;
+        color: #333;
+      }
+
+      .navbar .nav-link {
+        color: #444 !important;
+        font-weight: 500;
+      }
+
+      /* Buttons with Google Color Themes */
+      .btn-google {
+        color: white;
+        margin: 10px;
+        width: 140px;
+        height: 50px;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+      }
+
+      .btn-google:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        filter: brightness(1.05);
+      }
+
+      .model-1 {
+        background-color: #DB4437 ;
+      }
+      /* Blue */
+      .model-2 {
+        background-color: #F4B400;
+      }
+      /* Red */
+      .model-3 {
+        background-color: #0F9D58;
+        color: #000;
+      }
+      /* Yellow */
+      .model-4 {
+        background-color: #0f9d58;
+      }
+      /* Green */
+      .model-5 {
+        background-color: #ab47bc;
+      }
+      /* Purple */
+      .model-6 {
+        background-color: #48db3a;
+      }
+      /* Cyan */
+      .model-7 {
+        background-color: #e62222;
+      }
+      /* Orange */
+
+      /* Footer */
+      footer {
+        background-color: #f8f9fa;
+        color: #333;
+        border-top: 1px solid #ddd;
+      }
+
+      [data-bs-theme='dark'] body {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      [data-bs-theme='dark'] .navbar {
+        background: linear-gradient(90deg, #1f1f1f, #2c2c2c, #3a3a3a);
+      }
+
+      [data-bs-theme='dark'] footer {
+        background-color: #1f1f1f;
+        color: #bbb;
+      }
+    </style>
+</head>
+<body>
+  <!-- Navbar (unchanged) -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">City Data Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <button id="themeToggle" class="btn btn-outline-secondary btn-sm mt-1">
+              🌙 Toggle Theme
+            </button>
+          </li>
+          <li class="nav-item ms-3">
+            <button id="uploadBtn" class="btn btn-outline-primary btn-sm mt-1">
+              📷 Upload Image
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content with Sidebar Layout -->
+  <div class="container-fluid mt-4">
+    <div class="row" style="min-height: 700px;">
+      <!-- Sidebar: Google-Themed Buttons -->
+      <div class="col-lg-3 col-md-4 col-sm-12 d-flex flex-column align-items-start" style="padding-top:40px;">
+        <h2 class="mb-4">Options</h2>
+        <form action="/route_traffic/" class="w-100 mb-3">
+          <button type="submit" class="btn btn-google model-2 w-100 mb-2">
+            Route traffic
+          </button>
+        </form>
+        <form action="/guide/" class="w-100 mb-3">
+          <button type="submit" class="btn btn-google model-6 w-100 mb-2">
+            The Guide
+          </button>
+        </form>
+        <form action="/messenger/" class="w-100">
+          <button type="submit" class="btn btn-google model-7 w-100 mb-2">
+            The Messenger
+          </button>
+        </form>
+      </div>
+
+      <!-- Main Map Area -->
+      <div class="col-lg-9 col-md-8 col-sm-12 d-flex flex-column align-items-center justify-content-start">
+        <h3 class="my-4 w-100 text-center">
+          The Mood Map
+        </h3>
+        <div id="moodMap"
+          style="height: 500px; width: 100%; max-width:800px; border-radius: 12px; margin-top: 20px;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- (Footer, Modals, Scripts remain unchanged) -->
+  <!-- ... existing HTML below this point ... -->
+
+
+  <!-- Leaflet CSS & JS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const moodColors = {
+      happy: "yellow",
+      sad: "blue",
+      angry: "red",
+      calm: "green",
+    };
+
+    const map = L.map("moodMap").setView([12.9716, 77.5946], 12);
+
+    L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        attribution: "© OpenStreetMap contributors",
+      }
+    ).addTo(map);
+
+    fetch("/mood-data/")
+      .then((response) => response.json())
+      .then((data) => {
+        data.forEach((point) => {
+          const color = moodColors[point.mood] || "gray";
+          L.circleMarker([point.latitude, point.longitude], {
+            radius: 8,
+            fillColor: color,
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8,
+          })
+            .addTo(map)
+            .bindPopup(`<b>Mood:</b> ${point.mood}`);
+        });
+      });
+  </script>
+
+  <!-- Footer -->
+  <footer class="text-center py-3 mt-5">
+    &copy; 2025 City Data Management System
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    const themeToggle = document.getElementById("themeToggle");
+    const htmlEl = document.documentElement;
+
+    themeToggle.addEventListener("click", () => {
+      const currentTheme = htmlEl.getAttribute("data-bs-theme");
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+      htmlEl.setAttribute("data-bs-theme", newTheme);
+    });
+  </script>
+
+  <!-- ================== Image Upload Modal ================== -->
+<div
+  class="modal fade"
+  id="uploadModal"
+  tabindex="-1"
+  aria-labelledby="uploadModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <form
+      id="imageUploadForm"
+      class="modal-content"
+      enctype="multipart/form-data"
+    >
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadModalLabel">
+          Upload Image for Analysis
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <input
+          type="file"
+          name="image"
+          id="imageInput"
+          accept="image/*"
+          required
+          class="form-control mb-3"
+        />
+        <!-- New Description text field -->
+        <label for="descriptionInput" class="form-label">Description</label>
+        <input
+          type="text"
+          name="description"
+          id="descriptionInput"
+          placeholder="Enter image description"
+          class="form-control"
+          maxlength="255"
+        />
+        <div id="labelResults" class="mt-3"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Analyze</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Close
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================== Image Upload Script ================== -->
+<script>
+  const uploadBtn = document.getElementById("uploadBtn");
+  const uploadModal = new bootstrap.Modal(
+    document.getElementById("uploadModal")
+  );
+  const form = document.getElementById("imageUploadForm");
+  const labelResults = document.getElementById("labelResults");
+
+  uploadBtn.addEventListener("click", () => {
+    labelResults.innerHTML = ""; // clear previous
+    form.reset();
+    uploadModal.show();
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const fileInput = document.getElementById("imageInput");
+    if (!fileInput.files.length) {
+      alert("Please select an image file.");
+      return;
+    }
+
+    const descriptionInput = document.getElementById("descriptionInput");
+
+    const formData = new FormData();
+    formData.append("image", fileInput.files[0]);
+    formData.append("description", descriptionInput.value);
+
+    labelResults.innerHTML = "Analyzing...";
+
+    try {
+      const response = await fetch("/analyze-image/", {
+        method: "POST",
+        body: formData,
+        // Add CSRF token here if your Django app uses it
+      });
+
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.json();
+
+      if (data.labels) {
+        labelResults.innerHTML =
+          "<b>Detected Labels:</b><ul>" +
+          data.labels
+            .map((label) => `<li>${label}</li>`)
+            .join("") +
+          "</ul>";
+      } else {
+        labelResults.innerHTML = "No labels detected or error.";
+      }
+    } catch (error) {
+      labelResults.innerHTML = "Error: " + error.message;
+    }
+  });
+</script>
+
+</body>
+</html>

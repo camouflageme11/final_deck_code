@@ -1,0 +1,168 @@
+{
+  "data": [
+    {
+      "id": "2234567890",
+      "text": "Heavy rain causing waterlogging near MG Road. Avoid the area during peak hours. #flood #warning",
+      "created_at": "2025-07-27T09:15:00+05:30",
+      "author_id": "user201",
+      "locality": "MG Road",
+      "latitude": 12.9754,
+      "longitude": 77.6051,
+      "emergency_type": "flood",
+      "severity": "medium"
+    },
+    {
+      "id": "2234567891",
+      "text": "Traffic congestion due to road construction on Koramangala 6th Block. Expect delays. #traffic #roadwork",
+      "created_at": "2025-07-27T11:00:00+05:30",
+      "author_id": "user202",
+      "locality": "Koramangala 6th Block",
+      "latitude": 12.9335,
+      "longitude": 77.6235,
+      "emergency_type": "congestion",
+      "severity": "low"
+    },
+    {
+      "id": "2234567892",
+      "text": "Major pileup reported near Electronic City Flyover. Emergency services responding. #accident #emergency",
+      "created_at": "2025-07-27T14:30:00+05:30",
+      "author_id": "user203",
+      "locality": "Electronic City",
+      "latitude": 12.8497,
+      "longitude": 77.6625,
+      "emergency_type": "accident",
+      "severity": "high"
+    },
+    {
+      "id": "2234567893",
+      "text": "Power outage affecting Indiranagar neighborhood. Crews working on restoration. #poweroutage",
+      "created_at": "2025-07-27T16:45:00+05:30",
+      "author_id": "user204",
+      "locality": "Indiranagar",
+      "latitude": 12.9719,
+      "longitude": 77.6406,
+      "emergency_type": "poweroutage",
+      "severity": "medium"
+    },
+    {
+      "id": "2234567894",
+      "text": "Flood alert in Jayanagar due to heavy monsoon rains. Stay indoors and follow safety advisories. #flood #alert",
+      "created_at": "2025-07-27T18:20:00+05:30",
+      "author_id": "user205",
+      "locality": "Jayanagar",
+      "latitude": 12.9250,
+      "longitude": 77.5938,
+      "emergency_type": "flood",
+      "severity": "high"
+    },
+    {
+      "id": "2234567895",
+      "text": "Fire reported in a commercial complex near Whitefield main road. Firefighters on site. #fire #emergency",
+      "created_at": "2025-07-27T19:05:00+05:30",
+      "author_id": "user206",
+      "locality": "Whitefield",
+      "latitude": 12.9697,
+      "longitude": 77.7490,
+      "emergency_type": "fire",
+      "severity": "critical"
+    },
+    {
+      "id": "2234567896",
+      "text": "Roadblock on Outer Ring Road near BTM Layout due to protest march. Seek alternate routes. #roadblock",
+      "created_at": "2025-07-27T08:30:00+05:30",
+      "author_id": "user207",
+      "locality": "BTM Layout",
+      "latitude": 12.9121,
+      "longitude": 77.6100,
+      "emergency_type": "roadblock",
+      "severity": "medium"
+    },
+    {
+      "id": "2234567897",
+      "text": "Landslide reported near Bannerghatta Road after heavy rains. Traffic stopped temporarily. #landslide",
+      "created_at": "2025-07-27T12:15:00+05:30",
+      "author_id": "user208",
+      "locality": "Bannerghatta Road",
+      "latitude": 12.8594,
+      "longitude": 77.5770,
+      "emergency_type": "landslide",
+      "severity": "high"
+    },
+    {
+      "id": "2234567898",
+      "text": "Gas leak reported near Rajajinagar industrial area. Area cordoned off by emergency teams. #gasleak #emergency",
+      "created_at": "2025-07-27T15:50:00+05:30",
+      "author_id": "user209",
+      "locality": "Rajajinagar",
+      "latitude": 12.9976,
+      "longitude": 77.5546,
+      "emergency_type": "hazard",
+      "severity": "critical"
+    },
+    {
+      "id": "2234567899",
+      "text": "Water pipeline burst causes major traffic on Malleswaram road. Repair work ongoing. #watermainbreak",
+      "created_at": "2025-07-27T20:10:00+05:30",
+      "author_id": "user210",
+      "locality": "Malleswaram",
+      "latitude": 13.0114,
+      "longitude": 77.5650,
+      "emergency_type": "infrastructure",
+      "severity": "medium"
+    }
+  ],
+  "includes": {
+    "users": [
+      {
+        "id": "user201",
+        "username": "BangaloreEMA",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user202",
+        "username": "BangaloreTraffic",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user203",
+        "username": "BangalorePolice",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user204",
+        "username": "BESCOM",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user205",
+        "username": "BBMPAlerts",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user206",
+        "username": "FireDeptBLR",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user207",
+        "username": "ProtestUpdates",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user208",
+        "username": "TrafficWatchBLR",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user209",
+        "username": "HazmatBLR",
+        "location": "Bangalore, IN"
+      },
+      {
+        "id": "user210",
+        "username": "WaterDeptBLR",
+        "location": "Bangalore, IN"
+      }
+    ]
+  }
+}
